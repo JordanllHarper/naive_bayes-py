@@ -1,3 +1,4 @@
+from numpy import False_
 import pandas as pd
 
 import sys
@@ -5,8 +6,7 @@ import sys
 
 def step_print(step_num: int, message: str):
     print("--------")
-    print("[STEP {step_num}]: {msg}\n".format(step_num = step_num, msg=message))
-
+    print("[STEP {step_num}]: {msg}\n".format(step_num=step_num, msg=message))
 
 
 step_print(0, "Setup")
@@ -27,7 +27,11 @@ print()
 data = df.columns[0]
 print("Data header:", data)
 classification = df.columns[1]
+df[classification] = df[classification].astype("category")
 print("Classification header:", classification)
+classification_categories = df[classification].unique()
+print("Classification categories")
+print(classification_categories)
 
 print(df)
 
@@ -49,16 +53,42 @@ df_overall_classification_chance["%"] = df_overall_classification_chance["Chance
 
 print(df_overall_classification_chance)
 
+# ---
+
 step_print(2, "Map words and their classification counts")
 
-# Dataframe structure:
-# Word
-# Classification
-# Count of word
+# Sanitization of words
 
-words = df[data].str.split().transform(lambda series: list(filter(lambda word: word != " ", series)))
 
-# Series of words
-# Establish a count of each word
+def sanitize_words(df: pd.DataFrame):
+    df[data] = df[data].str.split().transform(
+        lambda l: list(map(lambda w: w.strip().lower(), l))
+    ).transform(
+        lambda l: list(filter(lambda w: [w for c in w if c.isalpha()], l))
+    )
 
+    return df
+
+
+words = sanitize_words(df)
 print(words)
+
+# Dataframe structure:
+# Word | Classification 1 Count | Classification 2 Count | ...
+
+words_flattened = words.explode(str(data))
+print(words_flattened)
+
+# Code adapted from Hait (2021)
+words_groups = words_flattened[words_flattened.duplicated(keep=False)].copy()
+print(words_groups)
+words_count = words_groups.value_counts().reset_index(name='count')
+print(words_count)
+
+# words_counted = words_flattened.groupby(df.columns)
+# print(words_counted)
+# word_classification_count = pd.DataFrame(
+#     columns=["word"] + list(map(lambda x: str(x), classification_categories)),
+#     # data = each word
+# )
+# print(word_classification_count)
