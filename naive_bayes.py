@@ -1,7 +1,10 @@
-from numpy import False_
 import pandas as pd
 
 import sys
+
+
+def sep():
+    print()
 
 
 def step_print(step_num: int, message: str):
@@ -15,14 +18,16 @@ args = sys.argv[1:]
 
 path_to_csv = args[0]
 print("CSV path:", path_to_csv)
-stop_words = args[1]
-print("Stop words path:", stop_words)
+stop_words_path = args[1]
+print("Stop words path:", stop_words_path)
 test_data = args[2]
 print("Test data path:", test_data)
 
 df = pd.read_csv(path_to_csv)
+stop_words: list = open(stop_words_path, "r").readlines()
+stop_words.extend
 
-print()
+sep()
 
 data = df.columns[0]
 print("Data header:", data)
@@ -37,7 +42,8 @@ print(df)
 
 num_records = df[data].count()
 
-print()
+sep()
+
 print("Loaded:", num_records, "records")
 
 step_print(1, "Overall classifications")
@@ -79,11 +85,14 @@ print(words)
 words_flattened = words.explode(str(data))
 print(words_flattened)
 
+words_filtered = words_flattened[~words_flattened[data].isin(stop_words)]
+print(words_filtered)
+
 # Code adapted from Hait (2021)
-words_groups = words_flattened[words_flattened.duplicated(keep=False)].copy()
-print(words_groups)
-words_count = words_groups.value_counts().reset_index(name='count')
-print(words_count)
+# words_groups = words_filtered[words_filtered.duplicated(keep=False)].copy() print(words_groups)
+#
+# words_count = words_groups.value_counts().reset_index(name='count')
+# print(words_count)
 
 # words_counted = words_flattened.groupby(df.columns)
 # print(words_counted)
