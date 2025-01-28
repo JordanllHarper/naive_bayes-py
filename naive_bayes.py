@@ -22,12 +22,15 @@ stop_words_path = args[1]
 print("Stop words path:", stop_words_path)
 test_data = args[2]
 print("Test data path:", test_data)
-
 df = pd.read_csv(path_to_csv)
 stop_words: list = open(stop_words_path, "r").readlines()
-stop_words.extend
+stop_words = list(map(lambda x: x.strip().lower(), stop_words))
+
+# ---
 
 sep()
+
+# ---
 
 data = df.columns[0]
 print("Data header:", data)
@@ -42,7 +45,11 @@ print(df)
 
 num_records = df[data].count()
 
+# ---
+
 sep()
+
+# ---
 
 print("Loaded:", num_records, "records")
 
@@ -85,19 +92,19 @@ print(words)
 words_flattened = words.explode(str(data))
 print(words_flattened)
 
-words_filtered = words_flattened[~words_flattened[data].isin(stop_words)]
+print("Words filtered")
+
+
+def filter_on_stop_words(df: pd.DataFrame):
+    return ~df[data].isin(stop_words)
+
+
+words_filtered = words_flattened[filter_on_stop_words(words_flattened)]
+
 print(words_filtered)
 
-# Code adapted from Hait (2021)
-# words_groups = words_filtered[words_filtered.duplicated(keep=False)].copy() print(words_groups)
-#
-# words_count = words_groups.value_counts().reset_index(name='count')
-# print(words_count)
+print("Word groups")
 
-# words_counted = words_flattened.groupby(df.columns)
-# print(words_counted)
-# word_classification_count = pd.DataFrame(
-#     columns=["word"] + list(map(lambda x: str(x), classification_categories)),
-#     # data = each word
-# )
-# print(word_classification_count)
+# Code adapted from Hait (2021)
+words_groups = words_filtered[words_filtered.duplicated(keep=False)].copy()
+print(words_groups)
