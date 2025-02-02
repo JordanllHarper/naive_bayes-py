@@ -2,9 +2,18 @@ import pandas as pd
 
 import sys
 
+import step_1
+import step_2
+
 
 def sep():
     print()
+
+
+def read_stop_words(stop_words_path) -> list[str]:
+    stop_words = open(stop_words_path, "r").readlines()
+    stop_words = list(map(lambda x: x.strip().lower(), stop_words))
+    return stop_words
 
 
 def step_print(step_num: int, message: str):
@@ -12,99 +21,46 @@ def step_print(step_num: int, message: str):
     print("[STEP {step_num}]: {msg}\n".format(step_num=step_num, msg=message))
 
 
-step_print(0, "Setup")
+if __name__ == "__main__":
+    step_print(0, "Setup")
+    args = sys.argv[1:]
+    path_to_csv, stop_words_path, test_data = args[0], args[1], args[2]
 
-args = sys.argv[1:]
+    print("CSV path:", path_to_csv)
+    print("Stop words path:", stop_words_path)
+    print("Test data path:", test_data)
 
-path_to_csv = args[0]
-print("CSV path:", path_to_csv)
-stop_words_path = args[1]
-print("Stop words path:", stop_words_path)
-test_data = args[2]
-print("Test data path:", test_data)
-df = pd.read_csv(path_to_csv)
-stop_words: list = open(stop_words_path, "r").readlines()
-stop_words = list(map(lambda x: x.strip().lower(), stop_words))
-
-# ---
-
-sep()
+    df = pd.read_csv(path_to_csv)
+    stop_words = read_stop_words(stop_words_path)
+    print(stop_words)
 
 # ---
 
-data = df.columns[0]
-print("Data header:", data)
-classification = df.columns[1]
-df[classification] = df[classification].astype("category")
-print("Classification header:", classification)
-classification_categories = df[classification].unique()
-print("Classification categories")
-print(classification_categories)
-
-print(df)
-
-num_records = df[data].count()
+    sep()
 
 # ---
 
-sep()
+    data_column, classification_column = str(df.columns[0]), str(df.columns[1])
+    df[classification_column] = df[classification_column].astype("category")
+    classification_categories = df[classification_column].unique()
+
+    print("Data header:", data_column)
+    print("Classification header:", classification_column)
+    print("Classification categories:", classification_categories)
+
+    num_records = df[data_column].count()
+
+    step_print(1, "Overall classifications")
+    step_1.step_one(df, classification_column, num_records)
+
+    step_print(2, "Map words and their classification counts")
+    step_2.step_two(df, data_column, stop_words, classification_column)
+
+    # ---
+
+    sep()
+
+    # ---
+
 
 # ---
-
-print("Loaded:", num_records, "records")
-
-step_print(1, "Overall classifications")
-
-df_overall_classification_chance = pd.DataFrame(
-    {
-        "Classification": df[classification].unique(),
-        "Count": df[classification].value_counts()
-    }
-)
-df_overall_classification_chance["Chance"] = df_overall_classification_chance["Count"] / num_records
-df_overall_classification_chance["%"] = df_overall_classification_chance["Chance"] * 100
-
-print(df_overall_classification_chance)
-
-# ---
-
-step_print(2, "Map words and their classification counts")
-
-# Sanitization of words
-
-
-def sanitize_words(df: pd.DataFrame):
-    df[data] = df[data].str.split().transform(
-        lambda l: list(map(lambda w: w.strip().lower(), l))
-    ).transform(
-        lambda l: list(filter(lambda w: [w for c in w if c.isalpha()], l))
-    )
-
-    return df
-
-
-words = sanitize_words(df)
-print(words)
-
-# Dataframe structure:
-# Word | Classification 1 Count | Classification 2 Count | ...
-
-words_flattened = words.explode(str(data))
-print(words_flattened)
-
-print("Words filtered")
-
-
-def filter_on_stop_words(df: pd.DataFrame):
-    return ~df[data].isin(stop_words)
-
-
-words_filtered = words_flattened[filter_on_stop_words(words_flattened)]
-
-print(words_filtered)
-
-print("Word groups")
-
-# Code adapted from Hait (2021)
-words_groups = words_filtered[words_filtered.duplicated(keep=False)].copy()
-print(words_groups)
