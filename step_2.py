@@ -1,7 +1,24 @@
 import pandas as pd
+from naive_bayes import sep
 
 
-def step_two(start_df: pd.DataFrame, data_column: str, stop_words: list, classification_column: str):
+def get_num_words_per_classification(df, classification_column):
+    print("Num words per classification")
+    sums = df.groupby(
+        classification_column,
+        observed=True
+    ).size().reset_index(name="count").set_index(classification_column).T.to_dict(orient='records')[0]
+
+    print(sums)
+    return sums
+
+
+def map_words_to_classification_counts(
+        start_df: pd.DataFrame,
+        data_column: str,
+        stop_words: list,
+        classification_column: str
+):
 
     def sanitize_and_explode_words(df: pd.DataFrame):
         df[data_column] = df[data_column].str.split().transform(
@@ -15,35 +32,68 @@ def step_two(start_df: pd.DataFrame, data_column: str, stop_words: list, classif
 
     words = sanitize_and_explode_words(start_df)
     print(words)
+    sep()
 
     # Dataframe structure:
     # Word | Classification 1 Count | Classification 2 Count | ...
 
-    print("Words filtered")
     words_filtered = words[~words[data_column].isin(stop_words)]
+
+    print("Words filtered")
     print(words_filtered)
-    print()
+
+    sep()
 
     print("Word groups")
-    words_groups = words_filtered.groupby(
+
+    words_grouped = words_filtered.groupby(
+        # type: ignore
         [
             classification_column,
             data_column
         ],
         observed=True,
         sort=False,
-        as_index=True,
-    ).size().to_frame("count")
-    # the count of the classification which we don't know yet
-    words_groups["chance"] = words_groups["count"] / 100
-    print(words_groups)
-    print()
+    ).size().reset_index(name="count")
 
-    # groups_standalone = words_groups.groups
-    #
-    # print()
-    #
-    # print("Groups standalone")
-    # print(groups_standalone)
+    print(words_grouped)
 
-    # Sanitization of words
+    sep()
+
+    num_words_per_classification = get_num_words_per_classification(
+        words_grouped,
+        classification_column=classification_column,
+    )
+    sep()
+
+    print("Naturally categorized")
+
+    print(words_grouped[words_grouped["text"].str.contains("naturally")])
+
+    sep()
+
+    print(num_words_per_classification)
+
+    sep()
+
+    words_grouped["chance"] = words_grouped["count"] / \
+        words_grouped[classification_column].map(
+            num_words_per_classification
+    ).astype(int)
+
+    print(words_grouped)
+
+    words_grouped["%"] = words_grouped["chance"] * 100
+    words_grouped = words_grouped.sort_values(
+        "%",
+        ascending=False,
+    )
+
+    print(words_grouped)
+
+    sep()
+
+    print(words_grouped[words_grouped["spam"].astype(int) == 1])
+    sep()
+
+    return words_grouped

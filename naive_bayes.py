@@ -32,6 +32,8 @@ if __name__ == "__main__":
 
     df = pd.read_csv(path_to_csv)
     stop_words = read_stop_words(stop_words_path)
+
+    print(df)
     print(stop_words)
 
 # ---
@@ -51,16 +53,24 @@ if __name__ == "__main__":
     num_records = df[data_column].count()
 
     step_print(1, "Overall classifications")
-    step_1.step_one(df, classification_column, num_records)
-
-    step_print(2, "Map words and their classification counts")
-    step_2.step_two(df, data_column, stop_words, classification_column)
-
-    # ---
+    df_overall_classification_count = step_1.get_classification_counts(
+        df,
+        classification_column
+    )
+    df_overall_classification_chance: pd.DataFrame = step_1.get_overall_classification_chance(
+        df_overall_classification_count,
+        num_records,
+    )
+    print(df_overall_classification_chance)
 
     sep()
 
-    # ---
+    step_print(2, "Map words and their classification counts")
+    step_2.map_words_to_classification_counts(
+        df,
+        data_column,
+        stop_words,
+        classification_column,
+    )
 
-
-# ---
+    sep()
