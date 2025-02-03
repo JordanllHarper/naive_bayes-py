@@ -1,13 +1,32 @@
 import pandas as pd
-
-import sys
+from typing import Callable
+import argparse
 
 import step_1
 import step_2
 
 
-def sep():
+def space():
     print()
+
+
+def sep():
+    print("--------")
+
+
+def print_with_header(label):
+    print("Task:", label)
+
+
+def process_and_print(
+        label: str,
+        process: Callable
+):
+    print_with_header(label)
+    result = process()
+    print(result)
+    space()
+    return result
 
 
 def read_stop_words(stop_words_path) -> list[str]:
@@ -16,15 +35,28 @@ def read_stop_words(stop_words_path) -> list[str]:
     return stop_words
 
 
-def step_print(step_num: int, message: str):
-    print("--------")
+def step_print(
+    step_num: int,
+    message: str
+):
+    sep()
     print("[STEP {step_num}]: {msg}\n".format(step_num=step_num, msg=message))
 
 
 if __name__ == "__main__":
-    step_print(0, "Setup")
-    args = sys.argv[1:]
-    path_to_csv, stop_words_path, test_data = args[0], args[1], args[2]
+    step_print(0, "Config and Setup")
+    parser = argparse.ArgumentParser(
+        prog="Naive Bayes",
+        description="Naive Bayes algorithm implemented in Python using Pandas",
+    )
+
+    parser.add_argument("-d", "--data")
+    parser.add_argument("-t", "--test")
+    parser.add_argument("-s", "--stopwords")
+    parser.add_argument("-c", "--configured")
+
+    args = parser.parse_args()
+    path_to_csv, stop_words_path, test_data = args.data, args.stopwords, args.test
 
     print("CSV path:", path_to_csv)
     print("Stop words path:", stop_words_path)
@@ -33,6 +65,8 @@ if __name__ == "__main__":
     df = pd.read_csv(path_to_csv)
     stop_words = read_stop_words(stop_words_path)
 
+    sep()
+    print_with_header("Data")
     print(df)
     print(stop_words)
 
@@ -46,8 +80,8 @@ if __name__ == "__main__":
     df[classification_column] = df[classification_column].astype("category")
     classification_categories = df[classification_column].unique()
 
-    print("Data header:", data_column)
-    print("Classification header:", classification_column)
+    print("Data column:", data_column)
+    print("Classification column:", classification_column)
     print("Classification categories:", classification_categories)
 
     num_records = df[data_column].count()
@@ -63,7 +97,7 @@ if __name__ == "__main__":
     )
     print(df_overall_classification_chance)
 
-    sep()
+    space()
 
     step_print(2, "Map words and their classification counts")
     step_2.map_words_to_classification_counts(
@@ -73,4 +107,4 @@ if __name__ == "__main__":
         classification_column,
     )
 
-    sep()
+    space()

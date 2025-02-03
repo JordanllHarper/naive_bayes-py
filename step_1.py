@@ -13,7 +13,6 @@ def get_classification_counts(df, classification_column):
 
 def get_overall_classification_chance(df_overall_classification_counts: DataFrame, num_records):
     df_overall_classification_chance = df_overall_classification_counts.copy()
-    print(df_overall_classification_counts)
 
     df_overall_classification_chance["chance"] = df_overall_classification_chance["count"] / num_records
     df_overall_classification_chance["%"] = df_overall_classification_chance["chance"] * 100
