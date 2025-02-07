@@ -1,5 +1,6 @@
 import pandas as pd
-from naive_bayes import space, process_and_print
+from formatting import space
+from formatting import process_and_print
 
 
 def get_num_words_per_classification(df, classification_column):
