@@ -1,7 +1,9 @@
 import argparse
-from formatting import print_with_header,  step_print
+
+from formatting import print_with_header, step_print
 from train import train_model
 from test import test_model
+from present import present_results
 import pandas as pd
 
 from util import read_stop_words
@@ -50,8 +52,9 @@ if __name__ == "__main__":
             model.to_csv(model_path)
     # model path is supplied already, read from CSV
     elif model_path != None:
+        print_with_header("Importing model")
         model = pd.read_csv(model_path)
-    # we need at least one of the several models
+    # we need at least one option here
     else:
         raise Exception(
             "Expected either a path to training data or a path to a pretrained model to import, both in CSV"
@@ -60,3 +63,5 @@ if __name__ == "__main__":
         print_with_header("Testing using provided model")
         test = pd.read_csv(test_data)
         result = test_model(model, test, stop_words)
+        print_with_header("Results")
+        present_results(result)

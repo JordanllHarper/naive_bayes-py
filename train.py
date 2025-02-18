@@ -7,8 +7,8 @@ from util import *
 def get_classification_counts(df: DataFrame):
     return DataFrame(
         {
-            CLASSIFICATION_COL_FMT: df[CLASSIFICATION_COL].unique(),
-            "count": df[CLASSIFICATION_COL].value_counts()
+            OVERALL_CLASSIFICATION_COL: df[CLASSIFICATION_COL].unique(),
+            OVERALL_COUNT_COL: df[CLASSIFICATION_COL].value_counts()
         }
     )
 
@@ -16,8 +16,8 @@ def get_classification_counts(df: DataFrame):
 def get_overall_classification_chance(df_overall_classification_counts: DataFrame, num_records):
     df_overall_classification_chance = df_overall_classification_counts.copy()
 
-    df_overall_classification_chance[CHANCE_COL_FMT] = df_overall_classification_chance["count"] / num_records
-    df_overall_classification_chance[PERCENT_COL_FMT] = df_overall_classification_chance[CHANCE_COL_FMT] * 100
+    df_overall_classification_chance[OVERALL_CHANCE_COL] = df_overall_classification_chance[OVERALL_COUNT_COL] / num_records
+    df_overall_classification_chance[OVERALL_PERCENT_COL] = df_overall_classification_chance[OVERALL_CHANCE_COL] * 100
 
     return df_overall_classification_chance
 
@@ -26,7 +26,7 @@ def get_num_words_per_classification(df):
     return df.groupby(
         CLASSIFICATION_COL,
         observed=True
-    ).size().reset_index(name="count").set_index(CLASSIFICATION_COL).T.to_dict(orient='records')[0]
+    ).size().reset_index(name=OVERALL_COUNT_COL).set_index(CLASSIFICATION_COL).T.to_dict(orient='records')[0]
 
 
 def map_words_to_classification_counts(
