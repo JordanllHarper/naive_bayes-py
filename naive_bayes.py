@@ -4,6 +4,8 @@ from train import train_model
 from test import test_model
 import pandas as pd
 
+from util import read_stop_words
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -35,12 +37,16 @@ if __name__ == "__main__":
     model = None
 
     should_train = path_to_training_data != None
-    # Model path applies to a trained model - write it to designated path
+    stop_words = \
+        read_stop_words(stop_words_path) if stop_words_path != None else []
+
     if should_train:
         print_with_header("Training model")
-        model = train_model(path_to_training_data, stop_words_path)
-        print_with_header("Exporting to CSV at %s".format(model_path))
+        model = train_model(path_to_training_data, stop_words)
         if model_path != None:
+            print_with_header(
+                "Exporting to CSV at {path}".format(path=model_path)
+            )
             model.to_csv(model_path)
     # model path is supplied already, read from CSV
     elif model_path != None:
@@ -48,14 +54,9 @@ if __name__ == "__main__":
     # we need at least one of the several models
     else:
         raise Exception(
-            "Expected either a path to CSV and optionally stop words to train on, or a path to a pretrained model to import"
+            "Expected either a path to training data or a path to a pretrained model to import, both in CSV"
         )
-
     if test_data != None:
         print_with_header("Testing using provided model")
         test = pd.read_csv(test_data)
-        test_model(model, test)
-    elif model == None:
-        # Export model to csv
-        model.to_csv(model_path)
-        pass
+        result = test_model(model, test, stop_words)
