@@ -1,3 +1,5 @@
+from pandas import DataFrame
+
 
 def format_overall_col(col):
     return "{col}_{suffix}".format(col=col, suffix=SUFFIX_OVERALL)
@@ -17,3 +19,43 @@ def read_stop_words(stop_words_path: str) -> list[str]:
     stop_words = open(stop_words_path, "r").readlines()
     stop_words = list(map(lambda x: x.strip().lower(), stop_words))
     return stop_words
+
+
+def sanitize_and_explode_words(df: DataFrame, stop_words: list[str]):
+    df[DATA_COL] = df[DATA_COL].str.split().transform(
+        lambda l: list(map(lambda w: w.strip().lower(), l))
+    ).transform(
+        lambda l: list(filter(lambda w: [w for c in w if c.isalpha()], l))
+    )
+    words = df.explode(str(DATA_COL))
+
+    words_filtered = words[~words[DATA_COL].isin(stop_words)]
+
+    return words_filtered
+
+
+def group_words(words):
+    return words.groupby(
+        # type: ignore
+        [
+            CLASSIFICATION_COL,
+            DATA_COL
+        ],
+        observed=True,
+        sort=False,
+    ).size().reset_index(name="count")
+
+
+def get_num_words_per_classification(df):
+    return df.groupby(
+        CLASSIFICATION_COL,
+        observed=True
+    ).size().reset_index(name=OVERALL_COUNT_COL).set_index(CLASSIFICATION_COL).T.to_dict(orient='records')[0]
+
+
+def standardize_column_names(df: DataFrame) -> DataFrame:
+    data_column, classification_column = str(df.columns[0]), str(df.columns[1])
+    df = df.rename(
+        columns={classification_column: CLASSIFICATION_COL, data_column: DATA_COL})
+    df[CLASSIFICATION_COL] = df[CLASSIFICATION_COL].astype("category")
+    return df
