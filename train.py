@@ -22,52 +22,21 @@ def get_overall_classification_chance(df_overall_classification_counts: DataFram
     return df_overall_classification_chance
 
 
-def get_num_words_per_classification(df):
-    return df.groupby(
-        CLASSIFICATION_COL,
-        observed=True
-    ).size().reset_index(name=OVERALL_COUNT_COL).set_index(CLASSIFICATION_COL).T.to_dict(orient='records')[0]
-
-
 def map_words_to_classification_counts(
         start_df: DataFrame,
-        stop_words: list,
+        stop_words: list[str],
 ):
 
-    def sanitize_and_explode_words(df: DataFrame):
-        df[DATA_COL] = df[DATA_COL].str.split().transform(
-            lambda l: list(map(lambda w: w.strip().lower(), l))
-        ).transform(
-            lambda l: list(filter(lambda w: [w for c in w if c.isalpha()], l))
-        )
-        df = df.explode(str(DATA_COL))
-
-        return df
-
-    words = sanitize_and_explode_words(start_df)
+    words = sanitize_and_explode_words(start_df, stop_words)
     print(words)
     space()
 
     # Dataframe structure:
     # Word | Classification 1 Count | Classification 2 Count | ...
 
-    words_filtered = process_and_print(
-        label="Words filtered",
-        process=lambda:
-            words[~words[DATA_COL].isin(stop_words)]
-    )
-
     words_grouped = process_and_print(
         label="Word groups",
-        process=lambda: words_filtered.groupby(
-            # type: ignore
-            [
-                CLASSIFICATION_COL,
-                DATA_COL
-            ],
-            observed=True,
-            sort=False,
-        ).size().reset_index(name="count")
+        process=lambda: group_words(words),
     )
 
     num_words_per_classification = process_and_print(
@@ -116,10 +85,7 @@ def train_model(path_to_csv: str, stop_words: list[str]) -> DataFrame:
 
 # ---
 
-    data_column, classification_column = str(df.columns[0]), str(df.columns[1])
-    df = df.rename(
-        columns={classification_column: CLASSIFICATION_COL, data_column: DATA_COL})
-    df[CLASSIFICATION_COL] = df[CLASSIFICATION_COL].astype("category")
+    df = standardize_column_names(df)
     classification_categories = df[CLASSIFICATION_COL].unique()
 
     print("Classification categories:", classification_categories)
