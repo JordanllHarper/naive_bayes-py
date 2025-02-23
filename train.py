@@ -46,9 +46,9 @@ def map_words_to_classification_counts(
         )
     )
 
-    words_grouped["chance"] = process_and_print(
+    words_grouped[CHANCE_COL] = process_and_print(
         label="Chance calculated",
-        process=lambda: words_grouped["count"] /
+        process=lambda: words_grouped[COUNT_COL] /
         words_grouped[CLASSIFICATION_COL].map(
             num_words_per_classification
         ).astype(int)
@@ -56,7 +56,7 @@ def map_words_to_classification_counts(
 
     words_grouped["%"] = process_and_print(
         label="% chance",
-        process=lambda: words_grouped["chance"] * 100
+        process=lambda: words_grouped[CHANCE_COL] * 100
     )
 
     process_and_print(

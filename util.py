@@ -7,11 +7,14 @@ def format_overall_col(col):
 
 CLASSIFICATION_COL = "classification"
 DATA_COL = "text"
+COUNT_COL = "count"
+CHANCE_COL = "chance"
 SUFFIX_OVERALL = "overall"
 
+
 OVERALL_CLASSIFICATION_COL = format_overall_col(CLASSIFICATION_COL)
-OVERALL_COUNT_COL = format_overall_col("count")
-OVERALL_CHANCE_COL = format_overall_col("chance")
+OVERALL_COUNT_COL = format_overall_col(COUNT_COL)
+OVERALL_CHANCE_COL = format_overall_col(CHANCE_COL)
 OVERALL_PERCENT_COL = format_overall_col("%")
 
 
@@ -43,7 +46,7 @@ def group_words(words):
         ],
         observed=True,
         sort=False,
-    ).size().reset_index(name="count")
+    ).size().reset_index(name=COUNT_COL)
 
 
 def get_num_words_per_classification(df):

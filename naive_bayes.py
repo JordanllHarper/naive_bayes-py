@@ -64,4 +64,3 @@ if __name__ == "__main__":
         test = pd.read_csv(test_data)
         result = test_model(model, test, stop_words)
         print_with_header("Results")
-        present_results(result)

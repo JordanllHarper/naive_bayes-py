@@ -1,27 +1,64 @@
 
 from pandas import DataFrame
+import pandas as pd
 
 from formatting import process_and_print
 from train import sep
 from util import *
 
 
+def calculate_chance_for_classification(classification, classification_chance, df_model, df_data):
+    df_model_for_classification = df_model[
+        df_model[CLASSIFICATION_COL] == classification
+    ]
+
+    result = pd.merge(
+        left=df_model_for_classification,
+        right=df_data,
+        on=DATA_COL,
+        suffixes=("_model", "_data")
+    )
+
+    result["multiplied"] = result[CHANCE_COL] * result["count_data"]
+    summed = result["multiplied"].prod() * classification_chance
+    return summed
+
+
 def test_model(
     df_model: DataFrame,
     df_data: DataFrame,
     stop_words: list[str]
-) -> DataFrame:
+) -> dict:
 
     df_data = standardize_column_names(df_data)
+    df_model_words = df_model[
+        [
+            CLASSIFICATION_COL,
+            DATA_COL,
+            COUNT_COL,
+            CHANCE_COL,
+        ]
+    ]
+
+    df_model_classifications = df_model[CLASSIFICATION_COL].unique()
     sep()
 
     print(df_model)
-    classification_chance = df_model[[
-        OVERALL_CLASSIFICATION_COL, OVERALL_CHANCE_COL]].dropna()
+
+    classification_chance = process_and_print(
+        label="Get overall classification chance",
+        process=lambda:
+        df_model[
+            [
+                OVERALL_CLASSIFICATION_COL,
+                OVERALL_CHANCE_COL
+            ]
+        ].dropna().set_index(OVERALL_CLASSIFICATION_COL).T.to_dict(orient='records')[0]
+    )
 
     print(classification_chance)
 
-    words = process_and_print(
+    df_data_exploded = process_and_print(
         label="Sanitize and explode words",
         process=lambda: sanitize_and_explode_words(
             df_data, stop_words
@@ -30,9 +67,24 @@ def test_model(
 
     sep()
 
-    words_grouped = process_and_print(
-        label="Word groups",
-        process=lambda: group_words(words)
+    df_data_words = process_and_print(
+        label="Group words",
+        process=lambda: group_words(df_data_exploded)
     )
 
-    raise NotImplementedError()
+    probabilities_of_classification = {}
+    for classification in df_model_classifications:
+
+        probability = process_and_print(
+            label="Calculate probability for " + str(classification),
+            process=lambda: calculate_chance_for_classification(
+                classification=classification,
+                classification_chance=classification_chance[classification],
+                df_model=df_model_words,
+                df_data=df_data_words
+            )
+        )
+        probabilities_of_classification[classification] = probability
+
+    print(probabilities_of_classification)
+    return probabilities_of_classification
