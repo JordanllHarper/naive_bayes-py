@@ -54,11 +54,3 @@ def get_num_words_per_classification(df):
         CLASSIFICATION_COL,
         observed=True
     ).size().reset_index(name=OVERALL_COUNT_COL).set_index(CLASSIFICATION_COL).T.to_dict(orient='records')[0]
-
-
-def standardize_column_names(df: DataFrame) -> DataFrame:
-    data_column, classification_column = str(df.columns[0]), str(df.columns[1])
-    df = df.rename(
-        columns={classification_column: CLASSIFICATION_COL, data_column: DATA_COL})
-    df[CLASSIFICATION_COL] = df[CLASSIFICATION_COL].astype("category")
-    return df

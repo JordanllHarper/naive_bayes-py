@@ -19,8 +19,10 @@ def calculate_chance_for_classification(classification, classification_chance, d
         suffixes=("_model", "_data")
     )
 
-    result["multiplied"] = result[CHANCE_COL] * result["count_data"]
-    summed = result["multiplied"].prod() * classification_chance
+    MULTIPLE_COL = "multiplied"
+
+    result[MULTIPLE_COL] = result[CHANCE_COL] * result["count_data"]
+    summed = result[MULTIPLE_COL].prod() * classification_chance
     return summed
 
 
@@ -29,8 +31,8 @@ def test_model(
     df_data: DataFrame,
     stop_words: list[str]
 ) -> dict:
-
-    df_data = standardize_column_names(df_data)
+    col = str(df_data.columns[0])
+    df_data = df_data.rename(columns={col: DATA_COL})
     df_model_words = df_model[
         [
             CLASSIFICATION_COL,

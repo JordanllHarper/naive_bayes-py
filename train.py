@@ -4,6 +4,18 @@ from formatting import *
 from util import *
 
 
+def standardize_column_names(df: DataFrame) -> DataFrame:
+    data_column, classification_column = str(df.columns[0]), str(df.columns[1])
+    df = df.rename(
+        columns={
+            classification_column: CLASSIFICATION_COL,
+            data_column: DATA_COL
+        }
+    )
+    df[CLASSIFICATION_COL] = df[CLASSIFICATION_COL].astype("category")
+    return df
+
+
 def get_classification_counts(df: DataFrame):
     return DataFrame(
         {
@@ -94,6 +106,7 @@ def train_model(path_to_csv: str, stop_words: list[str]) -> DataFrame:
 
     print_with_header("Working out overall classifications")
     df_overall_classification_count = get_classification_counts(
+
         df,
     )
     df_overall_classification_chance: DataFrame = get_overall_classification_chance(
