@@ -10,7 +10,9 @@ def sep():
 
 
 def print_with_header(label):
+    space()
     print("Task:", label)
+    space()
 
 
 def step_print(

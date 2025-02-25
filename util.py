@@ -2,20 +2,25 @@ from pandas import DataFrame
 
 
 def format_overall_col(col):
-    return "{col}_{suffix}".format(col=col, suffix=SUFFIX_OVERALL)
+    return "{col}_{suffix}".format(
+        col=col,
+        suffix=SUFFIX_OVERALL
+    )
 
 
 CLASSIFICATION_COL = "classification"
 DATA_COL = "text"
 COUNT_COL = "count"
 CHANCE_COL = "chance"
+PERCENT_COL = "%"
+
 SUFFIX_OVERALL = "overall"
 
 
 OVERALL_CLASSIFICATION_COL = format_overall_col(CLASSIFICATION_COL)
 OVERALL_COUNT_COL = format_overall_col(COUNT_COL)
 OVERALL_CHANCE_COL = format_overall_col(CHANCE_COL)
-OVERALL_PERCENT_COL = format_overall_col("%")
+OVERALL_PERCENT_COL = format_overall_col(PERCENT_COL)
 
 
 def read_stop_words(stop_words_path: str) -> list[str]:
@@ -37,13 +42,13 @@ def sanitize_and_explode_words(df: DataFrame, stop_words: list[str]):
     return words_filtered
 
 
-def group_words(words):
+def group_count_words(
+    words,
+    cols=[DATA_COL]
+):
     return words.groupby(
         # type: ignore
-        [
-            CLASSIFICATION_COL,
-            DATA_COL
-        ],
+        cols,
         observed=True,
         sort=False,
     ).size().reset_index(name=COUNT_COL)

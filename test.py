@@ -2,12 +2,16 @@
 from pandas import DataFrame
 import pandas as pd
 
-from formatting import process_and_print
-from train import sep
+from formatting import process_and_print, sep
 from util import *
 
 
-def calculate_chance_for_classification(classification, classification_chance, df_model, df_data):
+def calculate_chance_for_classification(
+    classification,
+    classification_chance,
+    df_model,
+    df_data
+):
     df_model_for_classification = df_model[
         df_model[CLASSIFICATION_COL] == classification
     ]
@@ -63,15 +67,19 @@ def test_model(
     df_data_exploded = process_and_print(
         label="Sanitize and explode words",
         process=lambda: sanitize_and_explode_words(
-            df_data, stop_words
+            df_data,
+            stop_words
         )
     )
 
     sep()
 
     df_data_words = process_and_print(
-        label="Group words",
-        process=lambda: group_words(df_data_exploded)
+        label="Group data words",
+        process=lambda: group_count_words(
+            df_data_exploded,
+            cols=[DATA_COL]
+        )
     )
 
     probabilities_of_classification = {}
@@ -88,5 +96,4 @@ def test_model(
         )
         probabilities_of_classification[classification] = probability
 
-    print(probabilities_of_classification)
     return probabilities_of_classification

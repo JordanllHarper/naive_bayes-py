@@ -4,8 +4,9 @@ from formatting import *
 from util import *
 
 
-def standardize_column_names(df: DataFrame) -> DataFrame:
-    data_column, classification_column = str(df.columns[0]), str(df.columns[1])
+def standardize_column_names(df: DataFrame, data_col_index, class_col_index) -> DataFrame:
+    data_column, classification_column = str(
+        df.columns[int(data_col_index)]), str(df.columns[int(class_col_index)])
     df = df.rename(
         columns={
             classification_column: CLASSIFICATION_COL,
@@ -13,6 +14,7 @@ def standardize_column_names(df: DataFrame) -> DataFrame:
         }
     )
     df[CLASSIFICATION_COL] = df[CLASSIFICATION_COL].astype("category")
+    df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
     return df
 
 
@@ -48,7 +50,13 @@ def map_words_to_classification_counts(
 
     words_grouped = process_and_print(
         label="Word groups",
-        process=lambda: group_words(words),
+        process=lambda: group_count_words(
+            words,
+            cols=[
+                CLASSIFICATION_COL,
+                DATA_COL
+            ]
+        ),
     )
 
     num_words_per_classification = process_and_print(
@@ -83,8 +91,14 @@ def map_words_to_classification_counts(
     return words_grouped
 
 
-def train_model(path_to_csv: str, stop_words: list[str]) -> DataFrame:
-    df = pd.read_csv(path_to_csv)
+def train_model(
+        path_to_csv: str,
+        stop_words: list[str],
+        data_col_index,
+        class_col_index,
+        codec,
+) -> DataFrame:
+    df = pd.read_csv(path_to_csv, encoding=codec)
 
     sep()
     print_with_header("Data")
@@ -97,7 +111,11 @@ def train_model(path_to_csv: str, stop_words: list[str]) -> DataFrame:
 
 # ---
 
-    df = standardize_column_names(df)
+    df = standardize_column_names(
+        df,
+        data_col_index,
+        class_col_index
+    )
     classification_categories = df[CLASSIFICATION_COL].unique()
 
     print("Classification categories:", classification_categories)
@@ -115,23 +133,18 @@ def train_model(path_to_csv: str, stop_words: list[str]) -> DataFrame:
     )
     print(df_overall_classification_chance)
 
-    space()
-
     step_print(2, "Map words and their classification counts")
     model = map_words_to_classification_counts(
         df,
         stop_words,
     )
 
-    space()
-
     step_print(3, "Merge words and classification probabilities")
     model = model.join(
         df_overall_classification_chance,
-        rsuffix="_{col}".format(col=SUFFIX_OVERALL)
+        rsuffix="_{col}".format(col=SUFFIX_OVERALL),
+        on=CLASSIFICATION_COL,
     )
-
-    space()
 
     print(model)
 
