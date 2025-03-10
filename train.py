@@ -101,21 +101,18 @@ def map_words_to_classification_counts(
 
 def train_model(
     df: DataFrame,
-        stop_words: list[str],
-        data_col_index,
-        class_col_index,
+    stop_words: list[str],
+    data_col_index,
+    class_col_index,
 ) -> DataFrame:
 
     sep()
+
     print_with_header("Data")
     print(df)
     print(stop_words)
 
-# ---
-
     sep()
-
-# ---
 
     df = standardize_column_names(
         df,

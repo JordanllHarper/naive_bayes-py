@@ -99,7 +99,14 @@ def test_model(
     for classification in df_model_classifications:
         print("Calculate probability for " + str(classification))
         probability = calculate_chance_for_classification(
-            classification=classification, classification_chance=classification_chance[classification], df_model=df_model_words, df_data=df_data_words, bias=bias)
+            classification=classification,
+            classification_chance=classification_chance[
+                classification
+            ],
+            df_model=df_model_words,
+            df_data=df_data_words,
+            bias=bias
+        )
 
         probabilities_of_classification[classification] = probability
 

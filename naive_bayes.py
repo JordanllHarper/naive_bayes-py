@@ -1,6 +1,7 @@
 import argparse
 
 from formatting import print_with_header, sep, space, step_print
+from preprocessing import preprocess
 from train import train_model
 from test import test_model
 import pandas as pd
@@ -56,10 +57,18 @@ def handle_train_test(args):
     print("Specified codec:", codec)
     print("Specified bias:", bias)
 
-    # TODO: Split data and return df
+    df = pd.read_csv(
+        filepath_or_buffer=path_to_training_and_test,
+        encoding=codec
+    )
+    data, test = preprocess(df, data_col_index, class_col_index)
 
-    # TODO
-    # model = train_model()
+    stop_words = \
+        read_stop_words(stop_words_path) if stop_words_path != None else []
+
+    trained = train_model(data, stop_words, data_col_index, class_col_index)
+    result = test_model(trained, test.head(1), stop_words, bias)
+    present(result)
 
 
 def handle_manual(args):
