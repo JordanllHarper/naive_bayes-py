@@ -100,13 +100,11 @@ def map_words_to_classification_counts(
 
 
 def train_model(
-        path_to_csv: str,
+    df: DataFrame,
         stop_words: list[str],
         data_col_index,
         class_col_index,
-        codec,
 ) -> DataFrame:
-    df = pd.read_csv(path_to_csv, encoding=codec)
 
     sep()
     print_with_header("Data")
