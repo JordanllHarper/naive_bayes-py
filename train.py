@@ -4,7 +4,7 @@ from formatting import *
 from util import *
 
 
-def standardize_column_names(df: DataFrame, data_col_index, class_col_index) -> DataFrame:
+def standardize_column_names(df, data_col_index, class_col_index) -> DataFrame:
     data_column, classification_column = str(
         df.columns[int(data_col_index)]), str(df.columns[int(class_col_index)])
     df = df.rename(
@@ -66,13 +66,21 @@ def map_words_to_classification_counts(
         )
     )
 
+    words_grouped["mapped"] = process_and_print(
+        label="Mapping classifications",
+        process=lambda: words_grouped[CLASSIFICATION_COL].map(
+            lambda x: num_words_per_classification[0][x]
+        )
+    )
+
+    print(words_grouped)
+
     words_grouped[CHANCE_COL] = process_and_print(
         label="Chance calculated",
-        process=lambda: words_grouped[COUNT_COL] /
-        words_grouped[CLASSIFICATION_COL].map(
-            num_words_per_classification
-        ).astype(int)
+        process=lambda:
+            words_grouped[COUNT_COL] / words_grouped["mapped"].astype(int)
     )
+    print(words_grouped)
 
     words_grouped["%"] = process_and_print(
         label="% chance",

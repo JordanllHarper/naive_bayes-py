@@ -16,18 +16,29 @@ def calculate_chance_for_classification(
         df_model[CLASSIFICATION_COL] == classification
     ]
 
-    result = pd.merge(
-        left=df_model_for_classification,
-        right=df_data,
-        on=DATA_COL,
-        suffixes=("_model", "_data")
+    result = process_and_print(
+        label="Merge",
+        process=lambda: pd.merge(
+            left=df_model_for_classification,
+            right=df_data,
+            on=DATA_COL,
+            suffixes=("_model", "_data")
+        )
     )
 
     MULTIPLE_COL = "multiplied"
 
-    result[MULTIPLE_COL] = result[CHANCE_COL] * result["count_data"]
-    summed = result[MULTIPLE_COL].prod() * classification_chance
-    return summed
+    result[MULTIPLE_COL] = process_and_print(
+        label="Multiple col",
+        process=lambda: result[CHANCE_COL] * result["count_data"] + 1
+    )
+
+    final = process_and_print(
+        label="Final result for classification",
+        process=lambda: result[MULTIPLE_COL].prod() * classification_chance
+    )
+
+    return final
 
 
 def test_model(
@@ -84,16 +95,10 @@ def test_model(
 
     probabilities_of_classification = {}
     for classification in df_model_classifications:
+        print("Calculate probability for " + str(classification))
+        probability = calculate_chance_for_classification(
+            classification=classification, classification_chance=classification_chance[classification], df_model=df_model_words, df_data=df_data_words)
 
-        probability = process_and_print(
-            label="Calculate probability for " + str(classification),
-            process=lambda: calculate_chance_for_classification(
-                classification=classification,
-                classification_chance=classification_chance[classification],
-                df_model=df_model_words,
-                df_data=df_data_words
-            )
-        )
         probabilities_of_classification[classification] = probability
 
     return probabilities_of_classification

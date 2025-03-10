@@ -1,4 +1,7 @@
+import pandas as pd
 from pandas import DataFrame
+
+from formatting import process_and_print, sep
 
 
 def format_overall_col(col):
@@ -55,7 +58,24 @@ def group_count_words(
 
 
 def get_num_words_per_classification(df):
-    return df.groupby(
-        CLASSIFICATION_COL,
-        observed=True
-    ).size().reset_index(name=OVERALL_COUNT_COL).set_index(CLASSIFICATION_COL).T.to_dict(orient='records')[0]
+    sep()
+    print("Getting num words per classification")
+
+    grouping = process_and_print(
+        label="Grouping",
+        process=lambda: df.groupby(
+            [
+                CLASSIFICATION_COL,
+                DATA_COL
+            ],
+            observed=True,
+            as_index=False
+        ).sum().groupby([CLASSIFICATION_COL]).sum()
+    )
+
+    to_records = process_and_print(
+        label="To records",
+        process=lambda: grouping.T.to_dict(orient='records')
+    )
+
+    return to_records

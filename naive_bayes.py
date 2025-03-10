@@ -13,7 +13,7 @@ def present(result):
     print("Classification : Chance to 2 dp : %")
     space()
     for k, v in result.items():
-        print(f"{k} : {v:.2e} : {v * 100:.2e}")
+        print(f"{k} : {v} : {v * 100:.2f}")
         space()
 
 
