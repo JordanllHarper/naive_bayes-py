@@ -30,9 +30,11 @@ def setup_train_test_subcommand(train_test_invocation):
 
 def setup_manual_subcommand(manual_invocation):
     manual_invocation.add_argument(
-        "-d", "--data", help="path to training data in CSV")
+        "-d", "--data", help="path to training data in CSV"
+    )
     manual_invocation.add_argument(
-        "-t", "--test", help="data to test on in CSV")
+        "-t", "--test", help="data to test on in CSV"
+    )
     manual_invocation.add_argument(
         "-s", "--stopwords",
         help="the stopwords to filter out of each email"
@@ -45,8 +47,6 @@ def setup_manual_subcommand(manual_invocation):
 
 
 def handle_train_test(args):
-    print(args)
-
     path_to_training_and_test, stop_words_path,  data_col_index, class_col_index, codec, bias = args.data, args.stopwords,  args.datacolumn, args.classcolumn, args.codec, args.bias
 
     print("Training and test data path", path_to_training_and_test)
@@ -56,11 +56,10 @@ def handle_train_test(args):
     print("Specified codec:", codec)
     print("Specified bias:", bias)
 
-    # TODO: Split data and write
+    # TODO: Split data and return df
 
+    # TODO
     # model = train_model()
-
-    pass
 
 
 def handle_manual(args):
@@ -169,7 +168,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     try:
         args.func(args)
-        print(args)
     except AttributeError as e:
         print("Error! It looks like you tried to invoke this command without any subcommand. See --help for available options")
         print(e)
