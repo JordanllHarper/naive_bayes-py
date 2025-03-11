@@ -5,7 +5,12 @@ from train import standardize_column_names
 from util import *
 
 
-def preprocess(df: DataFrame, data_col_index, class_col_index):
+def preprocess(
+    df: DataFrame,
+    data_col_index: int,
+    class_col_index: int,
+    split: float
+):
     df = standardize_column_names(df, data_col_index, class_col_index)
 
     classification_categories = df[CLASSIFICATION_COL].unique()
@@ -14,7 +19,7 @@ def preprocess(df: DataFrame, data_col_index, class_col_index):
     for category in classification_categories:
         category_data = df[df[CLASSIFICATION_COL] == category]
 
-        data = category_data.sample(frac=.8)
+        data = category_data.sample(frac=split / 100)
         data_df.append(data)
 
         test = category_data.drop(data.index)

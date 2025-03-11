@@ -20,10 +20,14 @@ def present(result):
 
 def setup_train_test_subcommand(train_test_invocation):
     train_test_invocation.add_argument(
-        "-d", "--data", help="path to training and test data in CSV"
+        "-d",
+        "--data",
+        help="path to training and test data in CSV"
     )
     train_test_invocation.add_argument(
-        "-sp", "--split", help="the split to use on the dataset"
+        "--split",
+        help="the split of data to use on the dataset",
+        default=80
     )
 
     return train_test_invocation
@@ -37,10 +41,6 @@ def setup_manual_subcommand(manual_invocation):
         "-t", "--test", help="data to test on in CSV"
     )
     manual_invocation.add_argument(
-        "-s", "--stopwords",
-        help="the stopwords to filter out of each email"
-    )
-    manual_invocation.add_argument(
         "-m", "--model",
         help="either a path to a pretrained model if the data and stopwords arguments are ommitted, or a path to save a model if the data and stopwords are provided"
     )
@@ -48,7 +48,8 @@ def setup_manual_subcommand(manual_invocation):
 
 
 def handle_train_test(args):
-    path_to_training_and_test, stop_words_path,  data_col_index, class_col_index, codec, bias = args.data, args.stopwords,  args.datacolumn, args.classcolumn, args.codec, args.bias
+    print(args)
+    path_to_training_and_test, stop_words_path,  data_col_index, class_col_index, codec, bias, split = args.data, args.stopwords,  args.datacolumn, args.classcolumn, args.codec, args.bias, args.split
 
     print("Training and test data path", path_to_training_and_test)
     print("Stop words", stop_words_path)
@@ -56,12 +57,13 @@ def handle_train_test(args):
     print("Specified classification column:", class_col_index)
     print("Specified codec:", codec)
     print("Specified bias:", bias)
+    print("Specified split:", split)
 
     df = pd.read_csv(
         filepath_or_buffer=path_to_training_and_test,
         encoding=codec
     )
-    data, test = preprocess(df, data_col_index, class_col_index)
+    data, test = preprocess(df, data_col_index, class_col_index, float(split))
 
     stop_words = \
         read_stop_words(stop_words_path) if stop_words_path != None else []
@@ -136,7 +138,6 @@ if __name__ == "__main__":
         help="the stopwords to filter out of each email"
     )
     parser.add_argument(
-        "-co",
         "--codec",
         default="utf-8",
         help="Specify the data codec form. Defaults to UTF-8."
@@ -149,13 +150,11 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "-dc",
         "--datacolumn",
         default=0,
         help="Specify the column index in the training CSV to treat as data. Defaults to 0 (the first column)"
     )
     parser.add_argument(
-        "-cc",
         "--classcolumn",
         default=1,
         help="Specify the column index in the training CSV to treat as classification. Defaults to 1 (the second column)"
