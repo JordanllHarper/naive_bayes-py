@@ -31,7 +31,7 @@ def calculate_chance_for_classification(
 
     result[MULTIPLE_COL] = process_and_print(
         label="Multiple col",
-        process=lambda: result[CHANCE_COL] * result["count_data"] + bias
+        process=lambda: result[CHANCE_COL] * result["count_data"] + float(bias)
     )
 
     final = process_and_print(
