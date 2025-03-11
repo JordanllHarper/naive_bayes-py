@@ -2,6 +2,9 @@
 
 An implementation of the Multinomial Naive Bayes Classification Algorithm in Python using the pandas library.
 
+> [!NOTE]
+> Using this library might give variable results on probability due to floating point accuracy fluctuations.
+
 ## Requirements
 
 - [Python](https://www.python.org/downloads/)
