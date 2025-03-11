@@ -39,7 +39,7 @@ The program is split into two modes:
 - `-d` `--data` - the path to the training data in CSV format.
 - `-t` `--test` - the path to the test data in CSV format.
 - `-m` `--model` - either:
-    - a path to a pretrained model if the data and stopwords arguments are ommitted.
+    - a path to a pre-trained model if the data and stopwords arguments are ommitted.
     - or a path to save a model if the data and stopwords are provided.
 > [!NOTE]
 > This means you can separate out your training and testing pipeline as required.
