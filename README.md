@@ -23,16 +23,16 @@ The program is split into two modes:
 
 ### Common arguments
 
-- `-s` `--stopwords` - `.txt` file of the words you want the algorithm to filter out. This isn't required but is highly recommended for more realistic predictions.
-- `--codec` - the codec to apply when reading the CSV file. Defaults to `utf-8`.
-- `--bias` - the bias the algorithm will apply to each entry. In practice, this will increase the count of a given entry by this amount. Defaults to `1.`
-- `--datacolumn` - the column in the CSV input that specifies the "data" of the entry. For instance, in the `emails.csv` file, this column is the "text" column with the spam email contents. Defaults to `0` (the first column).
-- `--classcolumn` - the column in the CSV input that specifies the "classification" of the entry. For instance, in the `emails.csv` file, this column is the "spam" column with the email classification. Defaults to `1` (the second column).
+- `-s` `--stopwords` (string) - path to a `.txt` file of the words you want the algorithm to filter out. This isn't required but is highly recommended for more realistic predictions.
+- `--codec` (string) - the codec to apply when reading the CSV file. Defaults to `utf-8`.
+- `--bias` (float) - the bias the algorithm will apply to each entry. In practice, this will increase the count of a given entry by this amount. Defaults to `1.`
+- `--datacolumn` (int) - the column in the CSV input that specifies the "data" of the entry. For instance, in the `emails.csv` file, this column is the "text" column with the spam email contents. Defaults to `0` (the first column).
+- `--classcolumn` (int) - the column in the CSV input that specifies the "classification" of the entry. For instance, in the `emails.csv` file, this column is the "spam" column with the email classification. Defaults to `1` (the second column).
 
 ### train-test arguments
 
-- `-d` `--data` - the path to the data source that will be split into training and test data.
-- `--split` - the split to apply to the data source in CSV format. E.g. give a value of `50` for an 50% split of training and test data. Default is `80` (80% training to 20% test split).
+- `-d` `--data` (string) - the path to the data source that will be split into training and test data.
+- `--split` (float) - the split to apply to the data source in CSV format. E.g. give a value of `50` for an 50% split of training and test data. Default is `80` (80% training to 20% test split).
 
 ### manual arguments
 
@@ -43,3 +43,12 @@ The program is split into two modes:
     - or a path to save a model if the data and stopwords are provided.
 > [!NOTE]
 > This means you can separate out your training and testing pipeline as required.
+
+## Examples
+
+Use the manual mode which trains on the `emails.csv` file and tests on the `test_data.csv` without saving the model. Add a bias of 3 and use the stopwords `stop_words.txt`:
+
+`python3 naive_bayes.py --bias 3.0 --stopwords stop_words.txt manual -d emails.csv -t test_data.csv`
+
+Use the train-test mode on a `more_emails.csv` file, specifying the data column as 1 and classification column as 0.
+`python3 naive_bayes.py --stopwords more_stopwords.txt --datacolumn 1 --classcolumn 0 train-test -d more_emails.csv`
