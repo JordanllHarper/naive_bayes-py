@@ -1,4 +1,4 @@
-from pandas import DataFrame
+from pandas import DataFrame, value_counts
 import pandas as pd
 from formatting import *
 from util import *
@@ -19,12 +19,15 @@ def standardize_column_names(df, data_col_index, class_col_index) -> DataFrame:
 
 
 def get_classification_counts(df: DataFrame):
-    return DataFrame(
-        {
-            OVERALL_CLASSIFICATION_COL: df[CLASSIFICATION_COL].unique(),
-            OVERALL_COUNT_COL: df[CLASSIFICATION_COL].value_counts()
-        }
-    )
+    counts = df.groupby(
+        CLASSIFICATION_COL,
+        observed=False
+    ).count().reset_index()
+    counts = counts.rename(columns={
+        CLASSIFICATION_COL: OVERALL_CLASSIFICATION_COL,
+        DATA_COL: OVERALL_COUNT_COL
+    })
+    return counts
 
 
 def get_overall_classification_chance(df_overall_classification_counts: DataFrame, num_records):
@@ -127,7 +130,6 @@ def train_model(
 
     print_with_header("Working out overall classifications")
     df_overall_classification_count = get_classification_counts(
-
         df,
     )
     df_overall_classification_chance: DataFrame = get_overall_classification_chance(
