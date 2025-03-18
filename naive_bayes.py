@@ -63,6 +63,9 @@ def handle_train_test(args):
     )
     data, test = preprocess(df, data_col_index, class_col_index, float(split))
 
+    print("Test data")
+    print(test)
+
     stop_words = \
         read_stop_words(stop_words_path) if stop_words_path != None else []
 
