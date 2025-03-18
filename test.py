@@ -42,14 +42,12 @@ def calculate_chance_for_classification(
     return final
 
 
-def test_model(
+def test_data_entry(
     df_model: DataFrame,
-    df_data: DataFrame,
+    entry: str,
     stop_words: list[str],
     bias: int,
-) -> dict:
-    col = str(df_data.columns[0])
-    df_data = df_data.rename(columns={col: DATA_COL})
+):
     df_model_words = df_model[
         [
             CLASSIFICATION_COL,
@@ -80,7 +78,9 @@ def test_model(
     df_data_exploded = process_and_print(
         label="Sanitize and explode words",
         process=lambda: sanitize_and_explode_words(
-            df_data,
+            pd.DataFrame({
+                DATA_COL: [entry],
+            }),
             stop_words
         )
     )
@@ -111,3 +111,17 @@ def test_model(
         probabilities_of_classification[classification] = probability
 
     return probabilities_of_classification
+
+
+def test_model(
+    df_model: DataFrame,
+    df_data: DataFrame,
+    stop_words: list[str],
+    bias: int,
+) -> DataFrame:
+    col = str(df_data.columns[0])
+    df_data.rename(columns={col: DATA_COL})
+    df_data["results"] = df_data[DATA_COL].apply(
+        lambda x: test_data_entry(df_model, x, stop_words, bias)
+    )
+    return df_data

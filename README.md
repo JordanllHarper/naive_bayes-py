@@ -16,7 +16,7 @@ An implementation of the Multinomial Naive Bayes Classification Algorithm in Pyt
 2. Clone the repository `git clone https://github.com/JordanllHarper/naive_bayes-py`
 3. Run the program
     - `python3 naive_bayes.py --help` for command line help.
-    - `sh email_train_test.sh` - Bash script included for convenience in running a test and train on the `emails.csv` data set using an "60% train 40% test" split using stop words defined in stop_words.txt.
+    - `sh email_train_test.sh` - Bash script included for convenience in running a test and train on the `emails.csv` data set using an "80% train 20% test" split using stop words defined in stop_words.txt.
 
 ## Usage
 
@@ -31,6 +31,8 @@ The program is split into two modes:
 - `--bias` (float) - the bias the algorithm will apply to each entry. In practice, this will increase the count of a given entry by this amount. Defaults to `1.`
 - `--datacolumn` (int) - the column in the CSV input that specifies the "data" of the entry. For instance, in the `emails.csv` file, this column is the "text" column with the spam email contents. Defaults to `0` (the first column).
 - `--classcolumn` (int) - the column in the CSV input that specifies the "classification" of the entry. For instance, in the `emails.csv` file, this column is the "spam" column with the email classification. Defaults to `1` (the second column).
+- `--export` (string) - Export path for test results. Defaults to None (no export).
+
 
 ### train-test arguments
 

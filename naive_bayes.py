@@ -1,8 +1,9 @@
 import argparse
 
-from formatting import print_with_header, sep, space, step_print
+
+from formatting import print_with_header, sep, step_print
 from preprocessing import preprocess
-from train import train_model
+from train import DataFrame, train_model
 from test import test_model
 import pandas as pd
 
@@ -10,12 +11,8 @@ import pandas as pd
 from util import read_stop_words
 
 
-def present(result):
-    print("Classification : Chance to 2 dp : %")
-    space()
-    for k, v in result.items():
-        print(f"{k} : {v} : {v * 100:.2f}")
-        space()
+def present(result: DataFrame):
+    print(result)
 
 
 def setup_train_test_subcommand(train_test_invocation):
@@ -49,7 +46,7 @@ def setup_manual_subcommand(manual_invocation):
 
 def handle_train_test(args):
     print(args)
-    path_to_training_and_test, stop_words_path,  data_col_index, class_col_index, codec, bias, split = args.data, args.stopwords,  args.datacolumn, args.classcolumn, args.codec, args.bias, args.split
+    path_to_training_and_test, stop_words_path,  data_col_index, class_col_index, codec, bias, split, export = args.data, args.stopwords,  args.datacolumn, args.classcolumn, args.codec, args.bias, args.split, args.export
 
     print("Training and test data path", path_to_training_and_test)
     print("Stop words", stop_words_path)
@@ -58,6 +55,7 @@ def handle_train_test(args):
     print("Specified codec:", codec)
     print("Specified bias:", bias)
     print("Specified split:", split)
+    print("Result export path:", export)
 
     df = pd.read_csv(
         filepath_or_buffer=path_to_training_and_test,
@@ -69,18 +67,22 @@ def handle_train_test(args):
         read_stop_words(stop_words_path) if stop_words_path != None else []
 
     trained = train_model(data, stop_words, data_col_index, class_col_index)
-    result = test_model(trained, test.head(1), stop_words, bias)
-    present(result)
+    result = test_model(trained, test, stop_words, bias)
+    print(result)
+    if export != None:
+        print("Exporting to", export)
+        result.to_csv(export)
 
 
 def handle_manual(args):
     step_print(0, "Config and Setup")
-    path_to_training_data, stop_words_path, test_data, model_path, data_col_index, class_col_index, codec, bias = args.data, args.stopwords, args.test, args.model, args.datacolumn, args.classcolumn, args.codec, args.bias
+    path_to_training_data, stop_words_path, test_data, model_path, data_col_index, class_col_index, codec, bias, export = args.data, args.stopwords, args.test, args.model, args.datacolumn, args.classcolumn, args.codec, args.bias, args.export
 
     print("Training CSV path:", path_to_training_data)
     print("Stop words path:", stop_words_path)
     print("Test data path:", test_data)
-    print("Configured model", model_path)
+    print("Configured model:", model_path)
+    print("Result export path:", export)
 
     print("Specified data column:", data_col_index)
     print("Specified classification column:", class_col_index)
@@ -125,7 +127,9 @@ def handle_manual(args):
         sep()
         print("Results")
         sep()
-        present(result)
+        print(result)
+        if export != None:
+            result.to_csv(export)
 
 
 if __name__ == "__main__":
@@ -159,6 +163,11 @@ if __name__ == "__main__":
         default=1,
         help="Specify the column index in the training CSV to treat as classification. Defaults to 1 (the second column)"
     )
+    parser.add_argument(
+        "--export",
+        default=None,
+        help="Path to export results to. Provide a path such as results.csv to export to the results file. Defaults to None (no export)."
+    )
 
     subparsers = parser.add_subparsers()
 
@@ -174,8 +183,4 @@ if __name__ == "__main__":
     manual_subcommand.set_defaults(func=handle_manual)
 
     args = parser.parse_args()
-    try:
-        args.func(args)
-    except AttributeError as e:
-        print("Error! It looks like you tried to invoke this command without any subcommand. See --help for available options")
-        print(e)
+    args.func(args)
