@@ -72,6 +72,12 @@ def test_data_entry(
     return final
 
 
+def make_assertion(row):
+    row = row.filter(regex="[^text, ^classification]")
+    dict_row = row.to_dict()
+    return max(dict_row, key=dict_row.get)
+
+
 def test_model(
     df_model: DataFrame,
     df_data: DataFrame,
@@ -84,12 +90,8 @@ def test_model(
     for classification in classifications:
         df_model_for_classification = df_model[
             df_model[CLASSIFICATION_COL] == classification
-        ].sort_values(
-            ascending=False,
-            by=COUNT_COL
-        )
-
-        df_data[f"results_for_classification_{classification}"] = df_data[DATA_COL].apply(
+        ]
+        df_data[f"{classification}"] = df_data[DATA_COL].apply(
             lambda x: test_data_entry(
                 for_classification=classification,
                 df_model_for_classification=df_model_for_classification,
@@ -99,4 +101,9 @@ def test_model(
             )
         )
 
+    df_data["classification_assertion"] = df_data.apply(
+        lambda row: make_assertion(row),
+        raw=False,
+        axis=1,
+    )
     return df_data
