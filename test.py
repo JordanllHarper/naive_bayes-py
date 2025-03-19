@@ -61,7 +61,7 @@ def test_data_entry(
         )
     )
 
-    # Log implementation informed by (Rhodes College, n.d.) to prevent extremely small numbers
+    # Log implementation informed by (Rhodes College, n.d.) to prevent extremely small numbers. Still compare as before.
     result[CHANCE_COL] = np.log(result[CHANCE_COL])
 
     final = process_and_print(
