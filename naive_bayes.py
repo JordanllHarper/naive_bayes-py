@@ -71,7 +71,8 @@ def handle_train_test(args):
 
     trained = train_model(
         data, stop_words, data_col_index, class_col_index, bias)
-    result = test_model(trained, test, stop_words, bias)
+    result = test_model(trained, test, stop_words, bias,
+                        data_col_index, class_col_index)
     print(result)
     if export != None:
         print("Exporting to", export)
@@ -128,7 +129,14 @@ def handle_manual(args):
     if test_data != None:
         print_with_header("Testing using provided model")
         test = pd.read_csv(test_data)
-        result = test_model(model, test, stop_words, bias=bias)
+        result = test_model(
+            model,
+            test,
+            stop_words,
+            bias=bias,
+            data_col_idx=data_col_index,
+            class_col_idx=class_col_index
+        )
         sep()
         print("Results")
         sep()

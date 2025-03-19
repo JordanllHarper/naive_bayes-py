@@ -75,6 +75,7 @@ def test_data_entry(
 def make_assertion(row):
     row = row.filter(regex="[^text, ^classification]")
     dict_row = row.to_dict()
+    print(dict_row)
     # Adapted from ricafeal (2008)
     return max(dict_row, key=dict_row.get)
 
@@ -84,9 +85,16 @@ def test_model(
     df_data: DataFrame,
     stop_words: list[str],
     bias: int,
+    data_col_idx,
+    class_col_idx,
 ) -> DataFrame:
-    col = str(df_data.columns[0])
-    df_data.rename(columns={col: DATA_COL})
+    data_col, class_col = str(df_data.columns[data_col_idx]), str(
+        df_data.columns[class_col_idx])
+    df_data = df_data.rename(
+        columns={
+            data_col: DATA_COL,
+            class_col: CLASSIFICATION_COL
+        })
     classifications = df_model[CLASSIFICATION_COL].unique()
     for classification in classifications:
         df_model_for_classification = df_model[
@@ -102,7 +110,7 @@ def test_model(
             )
         )
 
-    df_data["classification_assertion"] = df_data.apply(
+    df_data["model_assertion"] = df_data.apply(
         lambda row: make_assertion(row),
         raw=False,
         axis=1,

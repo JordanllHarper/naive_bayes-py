@@ -19,8 +19,12 @@ An implementation of the Multinomial Naive Bayes Classification Algorithm in Pyt
 ## Usage
 
 The program is split into two modes:
-- `train-test` will take your data set, divide it into training data and test data, and give out results for that.
+
+- `train-test` will take your data set, divide it into training data and test data, and give out results.
 - `manual` requires you to specify your own training data and test data.
+    
+> [!IMPORTANT]
+>  When using manual mode, your training and test data MUST have the same schema. e.g. if you have "text" and "spam" fields in training, these also need to be present in testing.
 
 ### Common arguments
 
