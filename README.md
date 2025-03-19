@@ -54,3 +54,6 @@ The program is split into two modes:
 "Use the train-test mode on a `more_emails.csv` file, specifying the data column as 1 and classification column as 0":
 
 `python3 naive_bayes.py --stopwords more_stopwords.txt --datacolumn 1 --classcolumn 0 train-test -d more_emails.csv`
+
+> [!NOTE]
+> The algorithm gives very small numbers, so a log function is used to balance this out. Compare the 2 negative numbers and take the larger for the classification, it should work the same.
