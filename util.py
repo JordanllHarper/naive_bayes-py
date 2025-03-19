@@ -57,7 +57,7 @@ def group_count_words(
     ).size().reset_index(name=COUNT_COL)
 
 
-def get_num_words_per_classification(df):
+def get_num_words_per_classification(df: DataFrame):
     sep()
     print("Getting num words per classification")
 
@@ -70,12 +70,12 @@ def get_num_words_per_classification(df):
             ],
             observed=True,
             as_index=False
-        ).sum().groupby([CLASSIFICATION_COL]).sum()
+        ).sum().groupby(CLASSIFICATION_COL).sum()
     )
 
     to_records = process_and_print(
         label="To records",
-        process=lambda: grouping.T.to_dict(orient='records')
+        process=lambda: grouping.T.to_dict(orient='records')[1]
     )
 
     return to_records

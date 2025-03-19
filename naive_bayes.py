@@ -69,7 +69,8 @@ def handle_train_test(args):
     stop_words = \
         read_stop_words(stop_words_path) if stop_words_path != None else []
 
-    trained = train_model(data, stop_words, data_col_index, class_col_index)
+    trained = train_model(
+        data, stop_words, data_col_index, class_col_index, bias)
     result = test_model(trained, test, stop_words, bias)
     print(result)
     if export != None:
@@ -108,6 +109,7 @@ def handle_manual(args):
             stop_words,
             data_col_index,
             class_col_index,
+            float(bias),
         )
         if model_path != None:
             print_with_header(

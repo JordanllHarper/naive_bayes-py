@@ -1,4 +1,4 @@
-from pandas import DataFrame, value_counts
+from pandas import DataFrame
 import pandas as pd
 from formatting import *
 from util import *
@@ -68,6 +68,8 @@ def map_words_to_classification_counts(
             ]
         ),
     )
+
+    print(words_grouped)
 
     num_words_per_classification = process_and_print(
         label="Number of words per classification",

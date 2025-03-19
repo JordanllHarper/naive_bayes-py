@@ -6,74 +6,27 @@ from formatting import process_and_print, sep
 from util import *
 
 
-def calculate_chance_for_classification(
-    classification,
-    classification_chance,
-    df_model,
-    df_data,
-    bias
-):
-    df_model_for_classification = df_model[
-        df_model[CLASSIFICATION_COL] == classification
-    ]
-
-    result = process_and_print(
-        label="Merge",
-        process=lambda: pd.merge(
-            left=df_model_for_classification,
-            right=df_data,
-            on=DATA_COL,
-            suffixes=("_model", "_data")
-        )
-    )
-
-    MULTIPLE_COL = "multiplied"
-
-    result[MULTIPLE_COL] = process_and_print(
-        label="Multiple col",
-        process=lambda: result[CHANCE_COL] * result["count_data"] + float(bias)
-    )
-
-    final = process_and_print(
-        label="Final result for classification",
-        process=lambda: result[MULTIPLE_COL].prod() * classification_chance
-    )
-
-    return final
-
-
 def test_data_entry(
-    df_model: DataFrame,
+    for_classification,
+    df_model_for_classification: DataFrame,
     entry: str,
     stop_words: list[str],
     bias: int,
 ):
-    df_model_words = df_model[
-        [
-            CLASSIFICATION_COL,
-            DATA_COL,
-            COUNT_COL,
-            CHANCE_COL,
-        ]
-    ]
-
-    df_model_classifications = df_model[CLASSIFICATION_COL].unique()
     sep()
 
-    print(df_model)
+    print(df_model_for_classification)
 
     classification_chance = process_and_print(
         label="Get overall classification chance",
         process=lambda:
-        df_model[
+        df_model_for_classification[
             [
                 OVERALL_CLASSIFICATION_COL,
                 OVERALL_CHANCE_COL
             ]
-        ].dropna().set_index(OVERALL_CLASSIFICATION_COL).T.to_dict(orient='records')[0]
+        ].set_index(OVERALL_CLASSIFICATION_COL).T.to_dict(orient='records')[0][for_classification]
     )
-
-    print(classification_chance)
 
     df_data_exploded = process_and_print(
         label="Sanitize and explode words",
@@ -88,29 +41,31 @@ def test_data_entry(
     sep()
 
     df_data_words = process_and_print(
-        label="Group data words",
+        label="Count data words",
         process=lambda: group_count_words(
             df_data_exploded,
             cols=[DATA_COL]
         )
     )
 
-    probabilities_of_classification = {}
-    for classification in df_model_classifications:
-        print("Calculate probability for " + str(classification))
-        probability = calculate_chance_for_classification(
-            classification=classification,
-            classification_chance=classification_chance[
-                classification
-            ],
-            df_model=df_model_words,
-            df_data=df_data_words,
-            bias=bias
+    df_data_words[COUNT_COL] = df_data_words[COUNT_COL] + float(bias)
+
+    result = process_and_print(
+        label="Merge",
+        process=lambda: pd.merge(
+            left=df_model_for_classification,
+            right=df_data_words,
+            on=DATA_COL,
+            suffixes=("_model", "_data")
         )
+    )
 
-        probabilities_of_classification[classification] = probability
+    final = process_and_print(
+        label="Final result for classification",
+        process=lambda: result[CHANCE_COL].prod() * classification_chance
+    )
 
-    return probabilities_of_classification
+    return final
 
 
 def test_model(
@@ -121,7 +76,23 @@ def test_model(
 ) -> DataFrame:
     col = str(df_data.columns[0])
     df_data.rename(columns={col: DATA_COL})
-    df_data["results"] = df_data[DATA_COL].apply(
-        lambda x: test_data_entry(df_model, x, stop_words, bias)
-    )
+    classifications = df_model[CLASSIFICATION_COL].unique()
+    for classification in classifications:
+        df_model_for_classification = df_model[
+            df_model[CLASSIFICATION_COL] == classification
+        ].sort_values(
+            ascending=False,
+            by=COUNT_COL
+        )
+
+        df_data[f"results_for_classification_{classification}"] = df_data[DATA_COL].apply(
+            lambda x: test_data_entry(
+                for_classification=classification,
+                df_model_for_classification=df_model_for_classification,
+                entry=x,
+                stop_words=stop_words,
+                bias=bias
+            )
+        )
+
     return df_data
