@@ -1,4 +1,5 @@
 
+import numpy as np
 from pandas import DataFrame
 import pandas as pd
 
@@ -60,9 +61,12 @@ def test_data_entry(
         )
     )
 
+    # Log implementation informed by (Rhodes College, n.d.) to prevent extremely small numbers
+    result[CHANCE_COL] = np.log(result[CHANCE_COL])
+
     final = process_and_print(
         label="Final result for classification",
-        process=lambda: result[CHANCE_COL].prod() * classification_chance
+        process=lambda: result[CHANCE_COL].sum() * classification_chance
     )
 
     return final
