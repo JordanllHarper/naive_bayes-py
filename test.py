@@ -75,6 +75,7 @@ def test_data_entry(
 def make_assertion(row):
     row = row.filter(regex="[^text, ^classification]")
     dict_row = row.to_dict()
+    # Adapted from ricafeal (2008)
     return max(dict_row, key=dict_row.get)
 
 
