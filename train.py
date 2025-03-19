@@ -114,7 +114,8 @@ def map_words_to_classification_counts(
             }
         )
 
-        classification_df[COUNT_COL] = classification_df[COUNT_COL] + bias
+        classification_df[COUNT_COL] = classification_df[COUNT_COL] + \
+            float(bias)
 
         classification_df[CHANCE_COL] = classification_df[COUNT_COL] / \
             classification_df[TOTAL_WORD]
