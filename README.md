@@ -13,7 +13,7 @@ An implementation of the Multinomial Naive Bayes Classification Algorithm in Pyt
 2. Clone the repository `git clone https://github.com/JordanllHarper/naive_bayes-py`
 3. Run the program
     - `python3 naive_bayes.py --help` for command line help.
-    - `sh email_train_test.sh` - Bash script included for convenience in running a test and train on the `emails.csv` data set using an "80% train 20% test" split using stop words defined in stop_words.txt.
+    - `sh email_subset_showcase.sh` - Bash script included for convenience.
 
 ## Usage
 
