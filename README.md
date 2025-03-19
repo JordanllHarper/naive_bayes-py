@@ -2,8 +2,6 @@
 
 An implementation of the Multinomial Naive Bayes Classification Algorithm in Python using the pandas library.
 
-> [!NOTE]
-> Using this library might give variable results on probability due to floating point accuracy fluctuations.
 
 ## Requirements
 
@@ -46,8 +44,6 @@ The program is split into two modes:
 - `-m` `--model` - either:
     - a path to a pre-trained model if the data and stopwords arguments are ommitted.
     - or a path to save a model if the data and stopwords are provided.
-> [!NOTE]
-> This means you can separate out your training and testing pipeline as required.
 
 ## Examples
 
