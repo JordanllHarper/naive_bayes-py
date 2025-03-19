@@ -2,7 +2,6 @@
 
 An implementation of the Multinomial Naive Bayes Classification Algorithm in Python using the pandas library.
 
-
 ## Requirements
 
 - [Python](https://www.python.org/downloads/)

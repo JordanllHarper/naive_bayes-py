@@ -142,6 +142,7 @@ def handle_manual(args):
         sep()
         print(result)
         if export != None:
+            print("Exporting to:", export)
             result.to_csv(export)
 
 
