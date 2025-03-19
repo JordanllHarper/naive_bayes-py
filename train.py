@@ -33,6 +33,7 @@ def get_classification_counts(df: DataFrame):
 def get_overall_classification_chance(df_overall_classification_counts: DataFrame, num_records):
     df_overall_classification_chance = df_overall_classification_counts.copy()
 
+    print(num_records)
     df_overall_classification_chance[OVERALL_CHANCE_COL] = df_overall_classification_chance[OVERALL_COUNT_COL] / num_records
     df_overall_classification_chance[OVERALL_PERCENT_COL] = df_overall_classification_chance[OVERALL_CHANCE_COL] * 100
 
@@ -42,9 +43,15 @@ def get_overall_classification_chance(df_overall_classification_counts: DataFram
 def map_words_to_classification_counts(
         start_df: DataFrame,
         stop_words: list[str],
+        bias,
 ):
 
     words = sanitize_and_explode_words(start_df, stop_words)
+    print(words)
+
+    classifications = start_df[CLASSIFICATION_COL].unique()
+    unique_words = words[DATA_COL].unique()
+
     print(words)
     space()
 
@@ -69,37 +76,57 @@ def map_words_to_classification_counts(
         )
     )
 
-    words_grouped["mapped"] = process_and_print(
+    TOTAL_WORD = "total_word_classifications"
+
+    words_grouped[TOTAL_WORD] = process_and_print(
         label="Mapping classifications",
         process=lambda: words_grouped[CLASSIFICATION_COL].map(
-            lambda x: num_words_per_classification[0][x]
+            lambda x: num_words_per_classification[x]
+        ).astype(int)
+    )
+
+    final_df = pd.DataFrame(
+        {
+            DATA_COL: unique_words
+        }
+    )
+
+    for classification in classifications:
+        classification_df = pd.DataFrame(
+            {
+                DATA_COL: unique_words,
+            },
         )
-    )
 
-    print(words_grouped)
+        word_count_for_classification = words_grouped[words_grouped[CLASSIFICATION_COL] == classification]
 
-    words_grouped[CHANCE_COL] = process_and_print(
-        label="Chance calculated",
-        process=lambda:
-            words_grouped[COUNT_COL] / words_grouped["mapped"].astype(int)
-    )
-    print(words_grouped)
+        classification_df = classification_df.merge(
+            word_count_for_classification,
+            how='outer',
+            on=DATA_COL,
+        ).fillna(
+            {
+                CLASSIFICATION_COL: classification,
+                COUNT_COL: 0,
+                TOTAL_WORD: num_words_per_classification[classification]
+            }
+        )
 
-    words_grouped["%"] = process_and_print(
-        label="% chance",
-        process=lambda: words_grouped[CHANCE_COL] * 100
-    )
+        classification_df[COUNT_COL] = classification_df[COUNT_COL] + bias
 
-    process_and_print(
-        label="Sorted by %",
-        process=lambda:
-            words_grouped.sort_values(
-                "%",
-                ascending=False,
-            )
-    )
+        classification_df[CHANCE_COL] = classification_df[COUNT_COL] / \
+            classification_df[TOTAL_WORD]
 
-    return words_grouped
+        print(classification_df)
+        non_duplicated_columns = classification_df.columns.difference(final_df)
+        final_df = final_df.merge(
+            classification_df[non_duplicated_columns],
+            how='outer',
+        )
+
+    print("Final df")
+    print(final_df)
+    return final_df
 
 
 def train_model(
@@ -107,6 +134,7 @@ def train_model(
     stop_words: list[str],
     data_col_index,
     class_col_index,
+    bias,
 ) -> DataFrame:
 
     sep()
@@ -142,6 +170,7 @@ def train_model(
     model = map_words_to_classification_counts(
         df,
         stop_words,
+        bias,
     )
 
     step_print(3, "Merge words and classification probabilities")
