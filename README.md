@@ -47,9 +47,10 @@ The program is split into two modes:
 
 ## Examples
 
-Use the manual mode which trains on the `emails.csv` file and tests on the `test_data.csv` without saving the model. Add a bias of 3 and use the stopwords `stop_words.txt`:
+"Use the manual mode which trains on the `emails.csv` file and tests on the `test_data.csv` without saving the model. Add a bias of 3 and use the stopwords `stop_words.txt`":
 
 `python3 naive_bayes.py --bias 3.0 --stopwords stop_words.txt manual -d emails.csv -t test_data.csv`
 
-Use the train-test mode on a `more_emails.csv` file, specifying the data column as 1 and classification column as 0.
+"Use the train-test mode on a `more_emails.csv` file, specifying the data column as 1 and classification column as 0":
+
 `python3 naive_bayes.py --stopwords more_stopwords.txt --datacolumn 1 --classcolumn 0 train-test -d more_emails.csv`
