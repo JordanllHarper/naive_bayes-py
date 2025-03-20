@@ -70,7 +70,7 @@ def get_num_words_per_classification(df: DataFrame):
             ],
             observed=True,
             as_index=False
-        ).sum().groupby(CLASSIFICATION_COL).sum()
+        ).sum().groupby(CLASSIFICATION_COL).count()
     )
 
     to_records = process_and_print(
