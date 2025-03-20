@@ -75,7 +75,7 @@ def get_num_words_per_classification(df: DataFrame):
 
     to_records = process_and_print(
         label="To records",
-        process=lambda: grouping.T.to_dict(orient='records')[1]
+        process=lambda: grouping.T.to_dict(orient='records')[0]
     )
 
     return to_records
