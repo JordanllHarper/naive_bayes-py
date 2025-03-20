@@ -4,7 +4,7 @@ An implementation of the Multinomial Naive Bayes Classification Algorithm in Pyt
 
 ## Requirements
 
-- [Python](https://www.python.org/downloads/)
+- [Python](https://www.python.org/downloads/) v3.10.8
 - [Pandas](https://pandas.pydata.org/docs/getting_started/install.html) v2.2.3
 
 ## Getting started
